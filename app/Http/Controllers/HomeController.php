@@ -8,31 +8,18 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query();
-
-        // Search
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
-        }
-
-        // Sort
-        if ($request->sort == 'price_asc') {
-            $query->orderBy('price', 'asc');
-        } elseif ($request->sort == 'price_desc') {
-            $query->orderBy('price', 'desc');
-        }
-
-        // Filter
-        if ($request->filter == 'under50') {
-            $query->where('price', '<', 50);
-        } elseif ($request->filter == '50to100') {
-            $query->whereBetween('price', [50, 100]);
-        } elseif ($request->filter == 'above100') {
-            $query->where('price', '>', 100);
-        }
-
-        $products = $query->paginate(8);
+        $products = Product::query()
+            ->search($request->search)
+            ->sort($request->sort)
+            ->filterPrice($request->filter)
+            ->paginate(8);
 
         return view('home', compact('products'));
     }
+    public function show($id)
+{
+    $product = Product::findOrFail($id);
+    return view('client.products.show', compact('product'));
+}
+
 }

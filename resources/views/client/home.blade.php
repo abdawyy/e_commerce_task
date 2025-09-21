@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.client')
 
 @section('title', 'Home')
 
@@ -34,59 +34,68 @@
         </div>
     </form>
 
-    {{-- Product Carousel --}}
-    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
+    {{-- Check if products exist --}}
+    @if ($products->count() > 0)
 
-            @foreach ($products->chunk(4) as $chunkIndex => $chunk)
-                <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
-                    <div class="row g-4">
-                        @foreach ($chunk as $product)
-                            <div class="col-md-3">
-                                <div class="card h-100">
-                                    <a href="{{ route('products.show', $product->id) }}">
-                                        <img src="{{ $product->image }}" class="card-img-top" alt="{{ $product->name }}">
-                                    </a>
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title">
-                                            <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none text-dark">
-                                                {{ $product->name }}
-                                            </a>
-                                        </h5>
-                                        <p class="card-text">${{ number_format($product->price, 2) }}</p>
+        {{-- Product Carousel --}}
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
 
-                                        {{-- Stock Check --}}
-                                        @if($product->quantity > 0)
-                                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-auto">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success w-100">Add to Cart</button>
-                                            </form>
-                                        @else
-                                            <button class="btn btn-secondary w-100 mt-auto" disabled>Out of Stock</button>
-                                        @endif
+                @foreach ($products->chunk(4) as $chunkIndex => $chunk)
+                    <div class="carousel-item {{ $chunkIndex == 0 ? 'active' : '' }}">
+                        <div class="row g-4">
+                            @foreach ($chunk as $product)
+                                <div class="col-md-3">
+                                    <div class="card h-100">
+                                        <a href="{{ route('products.show', $product->id) }}">
+                                            <img src="{{ $product->image }}" class="card-img-top" alt="{{ $product->name }}">
+                                        </a>
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title">
+                                                <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none text-dark">
+                                                    {{ $product->name }}
+                                                </a>
+                                            </h5>
+                                            <p class="card-text">${{ number_format($product->price, 2) }}</p>
+
+                                            {{-- Stock Check --}}
+                                            @if($product->quantity > 0)
+                                                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-auto">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success w-100">Add to Cart</button>
+                                                </form>
+                                            @else
+                                                <button class="btn btn-secondary w-100 mt-auto" disabled>Out of Stock</button>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
 
+            </div>
+
+            {{-- Carousel Controls --}}
+            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
 
-        {{-- Carousel Controls --}}
-        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
+        {{-- Pagination --}}
+        <div class="mt-4">
+            {{ $products->links() }}
+        </div>
 
-    {{-- Pagination --}}
-    <div class="mt-4">
-        {{ $products->links() }}
-    </div>
+    @else
+        <div class="alert alert-warning text-center">
+            🚫 No products found.
+        </div>
+    @endif
 @endsection

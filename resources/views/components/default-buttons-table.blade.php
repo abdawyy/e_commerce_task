@@ -1,0 +1,38 @@
+@props([
+    'model',
+    'editRoute',
+    'deleteRoute',
+    'deactivateRoute',
+])
+
+<div class="btn-group" role="group">
+    {{-- Edit button --}}
+    @isset($editRoute)
+        <a href="{{ route($editRoute, $model->id) }}" class="btn btn-sm btn-primary mx-1">
+            Edit
+        </a>
+    @endisset
+
+    {{-- Delete button --}}
+    @isset($deleteRoute)
+        <form action="{{ route($deleteRoute, $model->id) }}" method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-sm btn-danger mx-1"
+                onclick="return confirm('Are you sure you want to delete this item?')">
+                Delete
+            </button>
+        </form>
+    @endisset
+
+    {{-- Deactivate button --}}
+    @isset($deactivateRoute)
+        <form action="{{ route($deactivateRoute, $model->id) }}" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-warning mx-1"
+                onclick="return confirm('Are you sure you want to deactivate this item?')">
+                Inactive
+            </button>
+        </form>
+    @endisset
+</div>

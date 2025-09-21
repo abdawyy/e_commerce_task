@@ -14,7 +14,7 @@ class HomeController extends Controller
             ->filterPrice($request->filter)
             ->paginate(8);
 
-        return view('home', compact('products'));
+        return view('client.home', compact('products'));
     }
     public function show($id)
 {

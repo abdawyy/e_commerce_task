@@ -42,4 +42,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+       // Custom searchable columns (optional)
+    protected array $searchable = [
+        'id',
+        'name',
+        'email',
+    ];
+
+    // Custom searchable relations (optional)
+    public static function searchableRelations(): array
+    {
+        return [
+            'roles' => ['name'], // example: search by related role name
+        ];
+    }
 }

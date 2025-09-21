@@ -44,14 +44,26 @@
                         @foreach ($chunk as $product)
                             <div class="col-md-3">
                                 <div class="card h-100">
-                                    <img src="{{ $product->image }}" class="card-img-top" alt="{{ $product->name }}">
+                                    <a href="{{ route('products.show', $product->id) }}">
+                                        <img src="{{ $product->image }}" class="card-img-top" alt="{{ $product->name }}">
+                                    </a>
                                     <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title">{{ $product->name }}</h5>
+                                        <h5 class="card-title">
+                                            <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none text-dark">
+                                                {{ $product->name }}
+                                            </a>
+                                        </h5>
                                         <p class="card-text">${{ number_format($product->price, 2) }}</p>
-                                        <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-auto">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success w-100">Add to Cart</button>
-                                        </form>
+
+                                        {{-- Stock Check --}}
+                                        @if($product->quantity > 0)
+                                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-auto">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success w-100">Add to Cart</button>
+                                            </form>
+                                        @else
+                                            <button class="btn btn-secondary w-100 mt-auto" disabled>Out of Stock</button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

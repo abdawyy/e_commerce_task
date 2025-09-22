@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
-use App\Models\Cart;
 use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
@@ -11,17 +11,18 @@ class CartController extends Controller
     {
         return view('client.cart');
     }
+
     public function add(Request $request)
     {
         $this->validateCartRequest($request);
 
         try {
-            $productItem = $this->getProduct($request);
-            $availableStock = $productItem->quantity;
+            $product = $this->getProduct($request);
+
+            $availableStock = $product->quantity;
             $requestedQuantity = $request->quantity;
 
-
-            return $this->handleGuestCart($request, $productItem, $availableStock, $requestedQuantity);
+            return $this->handleGuestCart($product, $availableStock, $requestedQuantity);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -31,6 +32,21 @@ class CartController extends Controller
             ], 500);
         }
     }
+
+    private function getProduct(Request $request)
+    {
+        $product = Product::find($request->product_id);
+
+        if (!$product) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Product not found.'
+            ], 404));
+        }
+
+        return $product;
+    }
+
     private function validateCartRequest(Request $request)
     {
         $request->validate([
@@ -38,35 +54,35 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
     }
-    private function handleGuestCart($request, $productItem, $availableStock, $requestedQuantity)
+
+    private function handleGuestCart($product, $availableStock, $requestedQuantity)
     {
         $cart = session()->get('cart', []);
-        $baseKey = $request->product_id . '_' . $request->size_id;
-
-        // If the key exists already, use it. If not, generate a unique one
-        $existingKey = collect($cart)->search(function ($item) use ($request) {
-            return $item['product_id'] == $request->product_id && $item['size_id'] == $request->size_id;
-        });
-
-        $key = is_string($existingKey) ? $existingKey : $baseKey;
+        $key = $product->id; // key based only on product_id
 
         $existingQuantity = isset($cart[$key]) ? $cart[$key]['quantity'] : 0;
         $newTotalQuantity = $existingQuantity + $requestedQuantity;
 
         if ($newTotalQuantity > $availableStock) {
-            return $this->stockLimitResponse($productItem, $availableStock);
+            return response()->json([
+                'success' => false,
+                'message' => "Cannot add more than available stock for: {$product->name}. Only {$availableStock} left.",
+            ], 400);
         }
 
         $cart[$key] = [
-            'product_id' => $request->product_id,
+            'product_id' => $product->id,
             'quantity' => $newTotalQuantity,
-            'name' => optional($productItem->products)->name,
-            'price' => $productItem->products->price,
-            'sale' => $productItem->products->sale,
-            'key' => $key // store key
+            'name' => $product->name,
+            'price' => $product->price,
+            'sale' => $product->sale ?? null, // optional
+            'image'=>$product->image,
+            'key'=>$key
         ];
 
         session()->put('cart', $cart);
+
+
 
         return response()->json([
             'success' => true,
@@ -74,31 +90,18 @@ class CartController extends Controller
             'cartCount' => count($cart)
         ]);
     }
-    private function stockLimitResponse($productItem, $availableStock)
-    {
-        $productName = optional($productItem->product)->name ?? 'Product';
-
-        return response()->json([
-            'success' => false,
-            'message' => "Cannot add more than available stock for: {$productName}. Only {$availableStock} left.",
-        ], 400);
-    }
-
 
     public function deleteGuest($key)
     {
-        $guestCart = Session::get('cart', []);
+        $cart = Session::get('cart', []);
 
-        if (isset($guestCart[$key])) {
-            unset($guestCart[$key]);
-            Session::put('cart', $guestCart);
+        if (isset($cart[$key])) {
+            unset($cart[$key]);
+            Session::put('cart', $cart);
 
             return redirect()->back()->with('success', 'Item removed from cart.');
         }
 
-
         return redirect()->back()->with('error', 'Item not found in cart.');
-
     }
-
 }

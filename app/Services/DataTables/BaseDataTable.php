@@ -12,6 +12,7 @@ class BaseDataTable
     protected array $columns;
     protected bool $renderComponents;
     protected ?string $customActionsView;
+    protected array $actionProps = []; // Generic props for component
 
     public function __construct(
         Builder $query,
@@ -25,46 +26,70 @@ class BaseDataTable
         $this->customActionsView = $customActionsView;
     }
 
-    public function make(Request $request)
+    /**
+     * Set dynamic props for action component
+     */
+    public function setActionProps(array $props): self
     {
-        $baseColumns = [];
-        $relationColumns = [];
-
-        foreach ($this->columns as $column) {
-            if (str_contains($column, '.')) {
-                [$relation, $relCol] = explode('.', $column, 2);
-                $relationColumns[$relation][] = $relCol;
-            } else {
-                $baseColumns[] = $column;
-            }
-        }
-
-        $dataTable = DataTables::eloquent($this->query)
-            ->filter(function ($query) use ($request, $baseColumns, $relationColumns) {
-                $search = $request->get('search')['value'] ?? null;
-
-                if ($search) {
-                    $query->where(function ($q) use ($search, $baseColumns, $relationColumns) {
-                        foreach ($baseColumns as $col) {
-                            $q->orWhere($col, 'LIKE', "%$search%");
-                        }
-
-                        foreach ($relationColumns as $relation => $cols) {
-                            $q->orWhereHas($relation, function ($qr) use ($cols, $search) {
-                                foreach ($cols as $col) {
-                                    $qr->orWhere($col, 'LIKE', "%$search%");
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        // Conditionally add 'actions' column only if both are true
-        if ($this->renderComponents && !empty($this->customActionsView)) {
-            $dataTable->addColumn('actions', fn($model) => view($this->customActionsView, compact('model'))->render());
-            $dataTable->rawColumns(['actions']);
-        }
-
-        return $dataTable->make(true);
+        $this->actionProps = $props;
+        return $this;
     }
+
+   public function make(Request $request)
+{
+    $baseColumns = [];
+    $relationColumns = [];
+
+    foreach ($this->columns as $column) {
+        if (str_contains($column, '.')) {
+            [$relation, $relCol] = explode('.', $column, 2);
+            $relationColumns[$relation][] = $relCol;
+        } else {
+            $baseColumns[] = $column;
+        }
+    }
+
+    $dataTable = DataTables::eloquent($this->query)
+        ->filter(function ($query) use ($request, $baseColumns, $relationColumns) {
+            $search = $request->get('search')['value'] ?? null;
+
+            if ($search) {
+                $query->where(function ($q) use ($search, $baseColumns, $relationColumns) {
+                    foreach ($baseColumns as $col) {
+                        $q->orWhere($col, 'LIKE', "%$search%");
+                    }
+
+                    foreach ($relationColumns as $relation => $cols) {
+                        $q->orWhereHas($relation, function ($qr) use ($cols, $search) {
+                            foreach ($cols as $col) {
+                                $qr->orWhere($col, 'LIKE', "%$search%");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+    // Add relation columns for display
+    foreach ($relationColumns as $relation => $cols) {
+        foreach ($cols as $col) {
+            $dataTable->addColumn($relation . '_' . $col, function ($model) use ($relation, $col) {
+                return $model->$relation ? $model->$relation->$col : 'N/A';
+            });
+        }
+    }
+
+    // Add 'actions' column dynamically
+    if ($this->renderComponents && !empty($this->customActionsView)) {
+        $dataTable->addColumn('actions', function ($model) {
+            $props = array_merge(['model' => $model], $this->actionProps);
+            return view($this->customActionsView, $props)->render();
+        });
+
+        $dataTable->rawColumns(['actions']);
+    }
+
+    return $dataTable->make(true);
+}
+
 }

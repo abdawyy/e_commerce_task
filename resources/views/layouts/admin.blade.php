@@ -16,50 +16,7 @@
     <link href="{{ asset('assets/css/admin.css') }}" rel="stylesheet">
 
     <style>
-        /* Sidebar default hidden (mobile) */
-        #sidebar {
-            width: 250px;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            z-index: 1050;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-        }
-
-        /* Overlay */
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-        }
-
-        /* Content area */
-        .content {
-            transition: margin-left 0.3s;
-            padding: 20px;
-        }
-
-        /* Desktop view: always show sidebar */
-        @media (min-width: 768px) {
-            #sidebar {
-                transform: translateX(0) !important;
-            }
-
-            #overlay {
-                display: none !important;
-            }
-
-            .content {
-                margin-left: 250px;
-            }
-        }
+     
     </style>
 </head>
 
@@ -92,7 +49,7 @@
             </a>
             <div class="collapse submenu ps-3" id="adminMenu">
                 <a href="{{ route('admin.index') }}" class="d-block text-white">Index</a>
-                <a href="{{ route('register') }}" class="d-block text-white">Create</a>
+                <a href="{{ route('admin.create') }}" class="d-block text-white">Create</a>
             </div>
 
             <!-- Product Section -->
@@ -103,6 +60,16 @@
             <div class="collapse submenu ps-3" id="productMenu">
                 <a href="{{ route('products.index') }}" class="d-block text-white">Index</a>
                 <a href="{{ route('products.create') }}" class="d-block text-white">Create</a>
+            </div>
+
+            <!-- categories Section -->
+            <a class="d-flex justify-content-between align-items-center" data-bs-toggle="collapse"
+                href="#categoriesMenu" role="button" aria-expanded="false" aria-controls="categoriesMenu">
+                categories <span class="bi bi-chevron-down"></span>
+            </a>
+            <div class="collapse submenu ps-3" id="categoriesMenu">
+                <a href="{{ route('categories.index') }}" class="d-block text-white">Index</a>
+                <a href="{{ route('categories.create') }}" class="d-block text-white">Create</a>
             </div>
 
             <!-- Guest Users Section -->
@@ -121,6 +88,15 @@
             </a>
             <div class="collapse submenu ps-3" id="orderMenu">
                 <a href="{{ route('orders.index') }}" class="d-block text-white">Index</a>
+            </div>
+
+            <!-- Product Logs Section -->
+            <a class="d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#logsMenu"
+                role="button" aria-expanded="false" aria-controls="logsMenu">
+                Product Logs <span class="bi bi-chevron-down"></span>
+            </a>
+            <div class="collapse submenu ps-3" id="logsMenu">
+                <a href="{{ route('product-logs.index') }}" class="d-block text-white">Index</a>
             </div>
         </div>
 

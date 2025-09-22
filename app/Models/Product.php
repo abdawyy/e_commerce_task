@@ -11,13 +11,17 @@ class Product extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'price', 'image', 'sale','is_active'];
+    protected $fillable = ['name', 'price', 'image', 'sale','is_active','description','category_id' , 'quantity'];
 
     /**
      * -------------------------------
      * Scopes
      * -------------------------------
      */
+        public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     // Only active products
     public function scopeActive($query)
@@ -74,5 +78,10 @@ class Product extends Model
     public function activate()
     {
         $this->update(['is_active' => true]);
+    }
+
+        public function logs()
+    {
+        return $this->hasMany(ProductLog::class);
     }
 }

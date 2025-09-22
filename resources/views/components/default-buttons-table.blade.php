@@ -26,13 +26,22 @@
     @endisset
 
     {{-- Deactivate button --}}
-    @isset($deactivateRoute)
-        <form action="{{ route($deactivateRoute, $model->id) }}" method="POST" style="display:inline;">
-            @csrf
+@isset($deactivateRoute)
+    <form action="{{ route($deactivateRoute, $model->id) }}" method="POST" style="display:inline;">
+        @csrf
+        @method('POST')
+        @if($model->is_active)
             <button type="submit" class="btn btn-sm btn-warning mx-1"
                 onclick="return confirm('Are you sure you want to deactivate this item?')">
-                Inactive
+                Deactivate
             </button>
-        </form>
-    @endisset
+        @else
+            <button type="submit" class="btn btn-sm btn-success mx-1"
+                onclick="return confirm('Are you sure you want to activate this item?')">
+                Activate
+            </button>
+        @endif
+    </form>
+@endisset
+
 </div>

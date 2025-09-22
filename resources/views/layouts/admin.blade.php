@@ -41,6 +41,10 @@
                     <button class="btn btn-sm btn-outline-light d-md-none" id="close-sidebar">&times;</button>
                 </div>
             </div>
+              <!-- Dashboard Link -->
+    <a class="d-flex justify-content-between align-items-center mb-2" href="/dashboard">
+        Dashboard <span class="bi bi-house-door"></span>
+    </a>
 
             <!-- Admin Section -->
             <a class="d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#adminMenu"

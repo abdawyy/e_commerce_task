@@ -7,10 +7,13 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\GuestUserController;
 use App\Http\Controllers\ProductController as WebProductShow;
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductLogController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\CheckoutController;
 
 
 /*
@@ -37,9 +40,12 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart/remove/{key}', [CartController::class, 'deleteGuest'])->name('cart.remove');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/place', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
 
 
 Route::get('products/webShow/{id}', [HomeController::class, 'show'])->name('products.show');     // products.show
@@ -93,13 +99,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/data', [AdminController::class, 'data'])->name('admin.data');
 
 
+    Route::get('guest-users/index', [GuestUserController::class, 'index'])->name('guests.index');
+    Route::get('guest-users/data', [GuestUserController::class, 'data'])->name('guest-users.data');
 
-    Route::get('/guest', [GuestController::class, 'index'])->name('guests.index');      // guests.index
-    Route::get('/guest/{id}', [GuestController::class, 'show'])->name('guests.show'); // guests.show
 
+ Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/data', [OrderController::class, 'data'])->name('orders.data');
 
-    Route::get('/order', [OrderController::class, 'index'])->name('orders.index');   // orders.index
-    Route::get('/order/{id}', [OrderController::class, 'show'])->name('orders.show'); // orders.show
+    // Optional: show and delete if you implement actions
+    Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+
 });
 
 require __DIR__ . '/auth.php';

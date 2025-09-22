@@ -34,7 +34,11 @@
                             <tr>
                                 <td>{{ $item['name'] }}</td>
                                 <td class="text-center">
-                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" width="60">
+                                    @if(!empty($item['image']))
+                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" width="60" height="60" style="object-fit: cover;">
+                                    @else
+                                        <img src="{{ asset('images/no-image.png') }}" alt="No Image" width="60" height="60" style="object-fit: cover;">
+                                    @endif
                                 </td>
                                 <td class="text-center">${{ number_format($item['price'], 2) }}</td>
                                 <td class="text-center">

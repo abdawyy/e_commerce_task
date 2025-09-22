@@ -3,9 +3,17 @@
     'editRoute',
     'deleteRoute',
     'deactivateRoute',
+    'showRoute', 
 ])
 
 <div class="btn-group" role="group">
+    {{-- Show button --}}
+    @isset($showRoute)
+        <a href="{{ route($showRoute, $model->id) }}" class="btn btn-sm btn-info mx-1">
+            Show
+        </a>
+    @endisset
+
     {{-- Edit button --}}
     @isset($editRoute)
         <a href="{{ route($editRoute, $model->id) }}" class="btn btn-sm btn-primary mx-1">
@@ -25,23 +33,22 @@
         </form>
     @endisset
 
-    {{-- Deactivate button --}}
-@isset($deactivateRoute)
-    <form action="{{ route($deactivateRoute, $model->id) }}" method="POST" style="display:inline;">
-        @csrf
-        @method('POST')
-        @if($model->is_active)
-            <button type="submit" class="btn btn-sm btn-warning mx-1"
-                onclick="return confirm('Are you sure you want to deactivate this item?')">
-                Deactivate
-            </button>
-        @else
-            <button type="submit" class="btn btn-sm btn-success mx-1"
-                onclick="return confirm('Are you sure you want to activate this item?')">
-                Activate
-            </button>
-        @endif
-    </form>
-@endisset
-
+    {{-- Deactivate / Activate button --}}
+    @isset($deactivateRoute)
+        <form action="{{ route($deactivateRoute, $model->id) }}" method="POST" style="display:inline;">
+            @csrf
+            @method('POST')
+            @if($model->is_active)
+                <button type="submit" class="btn btn-sm btn-warning mx-1"
+                    onclick="return confirm('Are you sure you want to deactivate this item?')">
+                    Deactivate
+                </button>
+            @else
+                <button type="submit" class="btn btn-sm btn-success mx-1"
+                    onclick="return confirm('Are you sure you want to activate this item?')">
+                    Activate
+                </button>
+            @endif
+        </form>
+    @endisset
 </div>

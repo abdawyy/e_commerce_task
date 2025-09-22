@@ -12,7 +12,7 @@ class GuestUser extends Model
     protected $fillable = [
         'name',
         'email',
-        'address',
+        'phone'
     ];
 
     // A guest user can have many orders

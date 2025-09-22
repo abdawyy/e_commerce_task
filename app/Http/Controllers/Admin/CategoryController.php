@@ -30,7 +30,6 @@ class CategoryController extends Controller
         $service = new BaseDataTable($query, $columns, true, 'components.default-buttons-table');
         $service->setActionProps([
             'editRoute' => 'categories.edit',
-            'deleteRoute' => 'categories.destroy',
         ]);
 
         return $service->make($request);
